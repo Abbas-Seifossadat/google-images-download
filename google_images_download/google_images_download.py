@@ -7,6 +7,7 @@
 # Import Libraries
 import sys
 import selenium.common.exceptions
+from selenium.webdriver.common.by import By
 
 version = (3, 0)
 cur_version = sys.version_info
@@ -307,21 +308,21 @@ class googleimagesdownload:
 
         # Bypass "Before you continue" if it appears
         try:
-            browser.find_element_by_css_selector("[aria-label='Accept all']").click()
+            browser.find_element(By.CSS_SELECTOR, "[aria-label='Accept all']").click()
             time.sleep(1)
         except selenium.common.exceptions.NoSuchElementException:
             pass
 
         print("Getting you a lot of images. This may take a few moments...")
 
-        element = browser.find_element_by_tag_name("body")
+        element = browser.find_element(By.TAG_NAME, "body")
         # Scroll down
         for i in range(50):
             element.send_keys(Keys.PAGE_DOWN)
             time.sleep(0.3)
 
         try:
-            browser.find_element_by_xpath('//input[@value="Show more results"]').click()
+            browser.find_element(By.XPATH, '//input[@value="Show more results"]').click()
             for i in range(50):
                 element.send_keys(Keys.PAGE_DOWN)
                 time.sleep(0.3)  # bot id protection
@@ -400,24 +401,26 @@ class googleimagesdownload:
 
     # Format the object in readable format
     def format_object(self, object):
-    data = object[1]
-    main = data[3]
-    info = self.lookupJsonKey(data, '2003')
-    formatted_object = {}
-    try:
-        formatted_object['image_height'] = main[2]
-        formatted_object['image_width'] = main[1]
-        formatted_object['image_link'] = main[0]
-        formatted_object['image_format'] = main[0][-1 * (len(main[0]) - main[0].rfind(".") - 1):]
-        formatted_object['image_description'] = info[3]
-        formatted_object['image_host'] = info[17]
-        formatted_object['image_source'] = info[2]
-        formatted_object['image_thumbnail_url'] = data[2][0]
-    except Exception as e:
-        print(e)
-        return None
-    return formatted_object
-    
+        data = object[1]
+        main = data[3]
+        info = data[23]
+        if info is None:
+            info = data[11]
+        formatted_object = {}
+        try:
+            formatted_object['image_height'] = main[2]
+            formatted_object['image_width'] = main[1]
+            formatted_object['image_link'] = main[0]
+            formatted_object['image_format'] = main[0][-1 * (len(main[0]) - main[0].rfind(".") - 1):]
+            formatted_object['image_description'] = info['2003'][3]
+            formatted_object['image_host'] = info['2003'][17]
+            formatted_object['image_source'] = info['2003'][2]
+            formatted_object['image_thumbnail_url'] = data[2][0]
+        except Exception as e:
+            print(e)
+            return None
+        return formatted_object
+
     # function to download single image
     def single_image(self, image_url):
         main_directory = "downloads"
