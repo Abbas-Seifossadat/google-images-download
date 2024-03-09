@@ -402,10 +402,10 @@ class googleimagesdownload:
     # Format the object in readable format
     def format_object(self, object):
         data = object[1]
-        main = data[3]
+        main = data[23]
         info = data[23]
         if info is None:
-            info = data[11]
+            info = data[22]
         formatted_object = {}
         try:
             formatted_object['image_height'] = main[2]
